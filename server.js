@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 
-const port = 8080;
+const port = 3000;
 
 // MIME types for different file extensions
 const mimeTypes = {

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: #000;
+            color: white;
+        }
+        video { 
+            width: 100%;
+            max-width: 800px;
+            border: 2px solid #fff;
+            border-radius: 10px;
+        }
+        .test-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>📹 Video File Test</h1>
+    
+    <div class="test-container">
+        <h2>Direct Video Test</h2>
+        <video id="testVideo" controls>
+            <source src="./assets/intro-video.webm" type="video/webm">
+            Your browser does not support the video tag.
+        </video>
+        
+        <div>
+            <button onclick="playVideo()">▶️ Play Video</button>
+            <button onclick="pauseVideo()">⏸️ Pause Video</button>
+            <button onclick="restartVideo()">🔄 Restart Video</button>
+        </div>
+        
+        <div class="status" id="status">Loading video...</div>
+    </div>
+    
+    <div class="test-container">
+        <h2>🎬 Auto-play Test</h2>
+        <video id="autoVideo" muted autoplay loop playsinline style="width: 600px; background: #222;">
+            <source src="./assets/intro-video.webm" type="video/webm">
+        </video>
+        <p><strong>This video should auto-play (muted)</strong></p>
+        <div class="status" id="autoStatus">Checking auto-play...</div>
+        <button onclick="forceAutoPlay()" style="background: #28a745;">🚀 Force Auto-Play</button>
+    </div>
+    
+    <div class="test-container">
+        <h2>🎯 Background Overlay Test</h2>
+        <div style="position: relative; width: 600px; height: 400px; margin: 0 auto; background: #444; border-radius: 10px; overflow: hidden;">
+            <video id="overlayVideo" muted autoplay loop playsinline style="width: 100%; height: 100%; object-fit: cover; opacity: 0.7;">
+                <source src="./assets/intro-video.webm" type="video/webm">
+            </video>
+            <div style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px;">
+                Video Overlay Test
+            </div>
+        </div>
+        <p><strong>This simulates the AR background video effect</strong></p>
+        <button onclick="forceOverlayPlay()" style="background: #007bff;">▶️ Play Overlay Video</button>
+    </div>
+
+    <script>
+        const video = document.getElementById('testVideo');
+        const autoVideo = document.getElementById('autoVideo');
+        const overlayVideo = document.getElementById('overlayVideo');
+        const status = document.getElementById('status');
+        const autoStatus = document.getElementById('autoStatus');
+        
+        function updateStatus(message) {
+            status.textContent = message;
+            console.log(message);
+        }
+        
+        video.addEventListener('loadeddata', () => {
+            updateStatus('✅ Video loaded successfully! Duration: ' + video.duration.toFixed(1) + 's');
+        });
+        
+        video.addEventListener('error', (e) => {
+            updateStatus('❌ Video failed to load: ' + e.message);
+        });
+        
+        video.addEventListener('play', () => {
+            updateStatus('▶️ Video is playing');
+        });
+        
+        video.addEventListener('pause', () => {
+            updateStatus('⏸️ Video is paused');
+        });
+        
+        autoVideo.addEventListener('play', () => {
+            console.log('✅ Auto-play video started');
+            autoStatus.textContent = '✅ Auto-play video is playing!';
+            autoStatus.style.background = '#28a745';
+        });
+        
+        autoVideo.addEventListener('error', (e) => {
+            console.log('❌ Auto-play video error:', e);
+            autoStatus.textContent = '❌ Auto-play video error: ' + e.message;
+            autoStatus.style.background = '#dc3545';
+        });
+        
+        autoVideo.addEventListener('pause', () => {
+            autoStatus.textContent = '⏸️ Auto-play video paused';
+            autoStatus.style.background = '#ffc107';
+        });
+        
+        // Overlay video events
+        overlayVideo.addEventListener('play', () => {
+            console.log('✅ Overlay video started');
+        });
+        
+        overlayVideo.addEventListener('error', (e) => {
+            console.log('❌ Overlay video error:', e);
+        });
+        
+        function playVideo() {
+            video.play()
+                .then(() => updateStatus('✅ Video playing'))
+                .catch(e => updateStatus('❌ Play failed: ' + e.message));
+        }
+        
+        function pauseVideo() {
+            video.pause();
+        }
+        
+        function restartVideo() {
+            video.currentTime = 0;
+            playVideo();
+        }
+        
+        function forceAutoPlay() {
+            console.log('🚀 Force playing auto video...');
+            autoVideo.currentTime = 0;
+            autoVideo.play()
+                .then(() => {
+                    console.log('✅ Auto video force-played successfully');
+                    autoStatus.textContent = '✅ Auto-play video force-started!';
+                    autoStatus.style.background = '#28a745';
+                })
+                .catch(e => {
+                    console.log('❌ Auto video force-play failed:', e);
+                    autoStatus.textContent = '❌ Force-play failed: ' + e.message;
+                    autoStatus.style.background = '#dc3545';
+                });
+        }
+        
+        function forceOverlayPlay() {
+            console.log('🎯 Force playing overlay video...');
+            overlayVideo.currentTime = 0;
+            overlayVideo.play()
+                .then(() => console.log('✅ Overlay video force-played successfully'))
+                .catch(e => console.log('❌ Overlay video force-play failed:', e));
+        }
+        
+        // Test if video file exists
+        fetch('./assets/intro-video.webm')
+            .then(response => {
+                if (response.ok) {
+                    updateStatus('✅ Video file found (Size: ' + Math.round(response.headers.get('content-length')/1024) + 'KB)');
+                } else {
+                    updateStatus('❌ Video file not found (HTTP ' + response.status + ')');
+                }
+            })
+            .catch(error => {
+                updateStatus('❌ Error checking video file: ' + error.message);
+            });
+            
+        // Auto-attempt to play videos after page loads
+        setTimeout(() => {
+            console.log('🎬 Auto-attempting to play all videos...');
+            
+            // Try auto video
+            if (autoVideo.paused) {
+                forceAutoPlay();
+            }
+            
+            // Try overlay video  
+            if (overlayVideo.paused) {
+                forceOverlayPlay();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

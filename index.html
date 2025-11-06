@@ -33,13 +33,14 @@
         }
         
         .buttons-container {
-            position: absolute;
-            bottom: 20px;
+            position: fixed;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             gap: 20px;
             pointer-events: auto;
+            z-index: 300;
         }
         
         .ar-button {
@@ -69,46 +70,52 @@
         }
         
         .offerings-container {
-            position: absolute;
-            right: 20px;
+            position: fixed;
             top: 50%;
-            transform: translateY(-50%);
+            left: 50%;
+            transform: translate(-50%, -50%);
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.5s ease;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
         }
         
         .offerings-container.visible {
             opacity: 1;
         }
         
+        /* Full screen transparent background video overlay */
         .demo-video-overlay {
             position: fixed;
-            top: 50%;
-            left: 15%;
-            transform: translateY(-50%);
-            width: 280px;
-            height: 210px;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            z-index: 500;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 50;
             opacity: 0;
-            transition: opacity 1s ease;
-            border: 3px solid rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
+            transition: opacity 2s ease;
+            pointer-events: none;
         }
         
         .demo-video-overlay.visible {
-            opacity: 0.95;
-            animation: floatVideo 4s ease-in-out infinite;
+            opacity: 0.3;
         }
         
         .demo-video-overlay video {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 17px;
+            mix-blend-mode: screen;
+            filter: contrast(1.1) brightness(1.2) saturate(0.8);
+        }
+        
+        /* Remove the prominent video layer - we only need transparent overlay */
+        .background-video-layer {
+            display: none;
         }
         
         .demo-overlay-label {
@@ -116,16 +123,19 @@
         }
         
         .offering-item {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px 15px;
-            margin: 8px 0;
-            border-radius: 20px;
-            font-size: 14px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 25px;
+            margin: 0;
+            border-radius: 25px;
+            font-size: 16px;
             font-weight: bold;
             color: #333;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            backdrop-filter: blur(10px);
-            animation: slideInRight 0.6s ease forwards;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            backdrop-filter: blur(15px);
+            animation: slideInCenter 0.6s ease forwards;
+            min-width: 250px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.5);
         }
         
         .offering-item:nth-child(1) { animation-delay: 0.1s; }
@@ -134,23 +144,23 @@
         .offering-item:nth-child(4) { animation-delay: 0.4s; }
         .offering-item:nth-child(5) { animation-delay: 0.5s; }
         
-        @keyframes slideInRight {
+        @keyframes slideInCenter {
             from {
-                transform: translateX(50px);
+                transform: scale(0.8);
                 opacity: 0;
             }
             to {
-                transform: translateX(0);
+                transform: scale(1);
                 opacity: 1;
             }
         }
         
         @keyframes floatVideo {
             0%, 100% {
-                transform: translateY(-50%) translateX(0px);
+                transform: translate(-50%, -50%) scale(1);
             }
             50% {
-                transform: translateY(-50%) translateX(5px);
+                transform: translate(-50%, -50%) scale(1.02);
             }
         }
         
@@ -158,18 +168,42 @@
         
         .loading-message {
             position: fixed;
-            top: 20px;
+            top: 30px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
             color: white;
-            padding: 8px 16px;
+            padding: 10px 20px;
             border-radius: 25px;
             z-index: 2000;
-            font-size: 13px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            opacity: 0.9;
+            font-size: 14px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.3);
+            opacity: 0.95;
+        }
+        
+        .click-to-play {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            padding: 15px 25px;
+            border-radius: 35px;
+            z-index: 2000;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.4);
+            cursor: pointer;
+            display: block;
+            animation: pulse 2s infinite;
+            border: 2px solid rgba(0,0,0,0.1);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.05); }
         }
         
         @media (max-width: 768px) {
@@ -198,6 +232,10 @@
 <body>
     <div class="loading-message" id="loadingMessage">
         🎯 Point camera at business card for full AR • Currently showing preview
+    </div>
+    
+    <div class="click-to-play" id="clickToPlay">
+        👆 Tap anywhere to start video
     </div>
     
     <div class="ar-container">
@@ -320,7 +358,7 @@
         </a-scene>
     </div>
     
-    <!-- Demo Video Overlay (for testing without marker) -->
+    <!-- Transparent Video Overlay (AR Effect) -->
     <div class="demo-video-overlay" id="demoVideoOverlay">
         <video id="demoVideo" muted autoplay loop playsinline>
             <source src="./assets/intro-video.webm" type="video/webm">
@@ -374,20 +412,40 @@
                 }, 1000);
             }
             
-            // Show demo video overlay after 3 seconds (simulating AR experience)
+            // Show transparent video overlay after 1 second (simulating AR experience)
             setTimeout(() => {
+                console.log('🎬 Activating transparent video overlay...');
+                
+                // Show transparent video overlay
                 if (demoVideoOverlay && !markerFound) {
                     demoVideoOverlay.classList.add('visible');
-                    console.log('📹 Demo video overlay activated');
+                    console.log('📹 Transparent video overlay activated');
                     
-                    // Try to play demo video
+                    // Try to play the transparent overlay video
                     if (demoVideo) {
-                        demoVideo.play().catch(e => {
-                            console.log('Demo video autoplay failed, will play on user interaction');
-                        });
+                        console.log('🎬 Attempting to play transparent overlay video...');
+                        demoVideo.currentTime = 0;
+                        const playPromise = demoVideo.play();
+                        
+                        if (playPromise !== undefined) {
+                            playPromise
+                                .then(() => {
+                                    console.log('✅ Transparent overlay video playing successfully');
+                                    // Hide click-to-play message
+                                    const clickToPlay = document.getElementById('clickToPlay');
+                                    if (clickToPlay) clickToPlay.style.display = 'none';
+                                })
+                                .catch(error => {
+                                    console.log('❌ Transparent overlay video autoplay blocked:', error);
+                                    console.log('📱 Click anywhere to start video');
+                                    // Show click-to-play message
+                                    const clickToPlay = document.getElementById('clickToPlay');
+                                    if (clickToPlay) clickToPlay.style.display = 'block';
+                                });
+                        }
                     }
                 }
-            }, 3000);
+            }, 1000);
             
             // Wait for A-Frame to initialize
             if (scene) {
@@ -514,14 +572,23 @@
             
         // Add click handler for video play (in case autoplay fails)
         document.addEventListener('click', function() {
+            const clickToPlay = document.getElementById('clickToPlay');
+            console.log('👆 User clicked - attempting to play transparent overlay video');
+            
             // Try to play AR video if marker is found
             if (video && markerFound && video.paused) {
                 video.play().catch(e => console.log('AR Video play on click failed:', e));
             }
             
-            // Try to play demo video if it's visible
+            // Try to play transparent overlay video
             if (demoVideo && demoVideo.paused) {
-                demoVideo.play().catch(e => console.log('Demo video play on click failed:', e));
+                console.log('🎬 Attempting to play transparent overlay video on click');
+                demoVideo.play()
+                    .then(() => {
+                        console.log('✅ Transparent overlay video started playing');
+                        if (clickToPlay) clickToPlay.style.display = 'none';
+                    })
+                    .catch(e => console.log('❌ Transparent overlay video play on click failed:', e));
             }
         });
         
