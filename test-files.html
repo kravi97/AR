@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Access Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .loading { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <h1>File Access Test</h1>
+    
+    <h2>Pattern File Test</h2>
+    <div id="patternTest" class="test-result loading">Testing pattern file access...</div>
+    
+    <h2>Video File Test</h2>
+    <div id="videoTest" class="test-result loading">Testing video file access...</div>
+    <video id="testVideo" width="300" controls style="display:none;">
+        <source src="./assets/intro-video.webm" type="video/webm">
+    </video>
+    
+    <h2>Direct Links</h2>
+    <p><a href="./assets/pattern-business-card.patt" target="_blank">Pattern File</a></p>
+    <p><a href="./assets/intro-video.webm" target="_blank">Video File</a></p>
+
+    <script>
+        // Test pattern file
+        fetch('./assets/pattern-business-card.patt')
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById('patternTest').className = 'test-result success';
+                    document.getElementById('patternTest').textContent = '✅ Pattern file loaded successfully (Size: ' + response.headers.get('content-length') + ' bytes)';
+                } else {
+                    throw new Error('HTTP ' + response.status);
+                }
+            })
+            .catch(error => {
+                document.getElementById('patternTest').className = 'test-result error';
+                document.getElementById('patternTest').textContent = '❌ Pattern file failed to load: ' + error.message;
+            });
+
+        // Test video file
+        const video = document.getElementById('testVideo');
+        video.addEventListener('loadeddata', function() {
+            document.getElementById('videoTest').className = 'test-result success';
+            document.getElementById('videoTest').textContent = '✅ Video file loaded successfully (Duration: ' + video.duration.toFixed(1) + 's)';
+            video.style.display = 'block';
+        });
+        
+        video.addEventListener('error', function() {
+            document.getElementById('videoTest').className = 'test-result error';
+            document.getElementById('videoTest').textContent = '❌ Video file failed to load';
+        });
+        
+        // Load the video
+        video.load();
+    </script>
+</body>
+</html>

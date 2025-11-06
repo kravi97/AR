@@ -1,0 +1,21 @@
+{
+  "name": "webar-business-card",
+  "version": "1.0.0",
+  "description": "WebAR Business Card with Pattern Recognition",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "webAR",
+    "AR.js",
+    "A-Frame",
+    "business-card",
+    "augmented-reality"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}

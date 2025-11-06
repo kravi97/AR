@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebAR Business Card</title>
+    
+    <!-- A-Frame and AR.js -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar-nft.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+        
+        .ar-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        .ui-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .buttons-container {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            pointer-events: auto;
+        }
+        
+        .ar-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .linkedin-btn {
+            background: linear-gradient(45deg, #0077b5, #00a0dc);
+            color: white;
+        }
+        
+        .contact-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+        }
+        
+        .ar-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        
+        .offerings-container {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .offerings-container.visible {
+            opacity: 1;
+        }
+        
+        .demo-video-overlay {
+            position: fixed;
+            top: 50%;
+            left: 15%;
+            transform: translateY(-50%);
+            width: 280px;
+            height: 210px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            z-index: 500;
+            opacity: 0;
+            transition: opacity 1s ease;
+            border: 3px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .demo-video-overlay.visible {
+            opacity: 0.95;
+            animation: floatVideo 4s ease-in-out infinite;
+        }
+        
+        .demo-video-overlay video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 17px;
+        }
+        
+        .demo-overlay-label {
+            display: none;
+        }
+        
+        .offering-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 15px;
+            margin: 8px 0;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            animation: slideInRight 0.6s ease forwards;
+        }
+        
+        .offering-item:nth-child(1) { animation-delay: 0.1s; }
+        .offering-item:nth-child(2) { animation-delay: 0.2s; }
+        .offering-item:nth-child(3) { animation-delay: 0.3s; }
+        .offering-item:nth-child(4) { animation-delay: 0.4s; }
+        .offering-item:nth-child(5) { animation-delay: 0.5s; }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes floatVideo {
+            0%, 100% {
+                transform: translateY(-50%) translateX(0px);
+            }
+            50% {
+                transform: translateY(-50%) translateX(5px);
+            }
+        }
+        
+
+        
+        .loading-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            z-index: 2000;
+            font-size: 13px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            opacity: 0.9;
+        }
+        
+        @media (max-width: 768px) {
+            .offerings-container {
+                right: 10px;
+                font-size: 12px;
+            }
+            
+            .offering-item {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            .buttons-container {
+                bottom: 10px;
+                gap: 15px;
+            }
+            
+            .ar-button {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-message" id="loadingMessage">
+        🎯 Point camera at business card for full AR • Currently showing preview
+    </div>
+    
+    <div class="ar-container">
+        <a-scene
+            embedded
+            arjs="sourceType: webcam; debugUIEnabled: true; detectionMode: mono_and_matrix; matrixCodeType: 3x3; trackingMethod: best; maxDetectionRate: 60; canvasWidth: 640; canvasHeight: 480;"
+            vr-mode-ui="enabled: false;"
+            renderer="logarithmicDepthBuffer: true; antialias: true; colorManagement: true;"
+            loading-screen="enabled: false;"
+            id="arScene">
+            
+            <a-assets>
+                <video id="introVideo" 
+                       src="./assets/intro-video.webm"
+                       preload="auto" 
+                       loop="true" 
+                       muted="true"
+                       crossorigin="anonymous"
+                       playsinline
+                       webkit-playsinline
+                       autoplay="false">
+                </video>
+            </a-assets>
+            
+            <a-marker type="pattern" 
+                     url="./assets/pattern-business-card.patt"
+                     id="markerA"
+                     registerevents
+                     smooth="true"
+                     smoothCount="10"
+                     smoothTolerance="0.01"
+                     smoothThreshold="5">
+                
+                <!-- Video plane -->
+                <a-video
+                    src="#introVideo"
+                    width="6"
+                    height="4"
+                    position="0 0 0.1"
+                    rotation="0 0 0"
+                    material="transparent: true; alphaTest: 0.1; opacity: 1.0; shader: flat"
+                    id="videoPlane">
+                </a-video>
+                
+                <!-- Backup plane for better video visibility -->
+                <a-plane 
+                    position="0 0 0" 
+                    rotation="0 0 0" 
+                    width="6.2" 
+                    height="4.2" 
+                    color="#ffffff" 
+                    opacity="0.8"
+                    material="shader: flat">
+                </a-plane>
+                
+                <!-- Text labels for offerings (3D text in AR space) -->
+                <a-text 
+                    value="💼 Business Consulting" 
+                    position="2.5 1.5 0" 
+                    rotation="0 0 0"
+                    color="#ffffff"
+                    font="kelsonsans"
+                    width="8"
+                    side="double"
+                    material="shader: msdf; alphaTest: 0.5"
+                    id="offering1">
+                </a-text>
+                
+                <a-text 
+                    value="📊 Data Analytics" 
+                    position="2.5 1 0" 
+                    rotation="0 0 0"
+                    color="#ffffff"
+                    font="kelsonsans"
+                    width="8"
+                    side="double"
+                    material="shader: msdf; alphaTest: 0.5"
+                    id="offering2">
+                </a-text>
+                
+                <a-text 
+                    value="🚀 Digital Marketing" 
+                    position="2.5 0.5 0" 
+                    rotation="0 0 0"
+                    color="#ffffff"
+                    font="kelsonsans"
+                    width="8"
+                    side="double"
+                    material="shader: msdf; alphaTest: 0.5"
+                    id="offering3">
+                </a-text>
+                
+                <a-text 
+                    value="💡 Innovation Strategy" 
+                    position="2.5 0 0" 
+                    rotation="0 0 0"
+                    color="#ffffff"
+                    font="kelsonsans"
+                    width="8"
+                    side="double"
+                    material="shader: msdf; alphaTest: 0.5"
+                    id="offering4">
+                </a-text>
+                
+                <a-text 
+                    value="🎯 Growth Solutions" 
+                    position="2.5 -0.5 0" 
+                    rotation="0 0 0"
+                    color="#ffffff"
+                    font="kelsonsans"
+                    width="8"
+                    side="double"
+                    material="shader: msdf; alphaTest: 0.5"
+                    id="offering5">
+                </a-text>
+                
+            </a-marker>
+            
+            <a-entity camera></a-entity>
+        </a-scene>
+    </div>
+    
+    <!-- Demo Video Overlay (for testing without marker) -->
+    <div class="demo-video-overlay" id="demoVideoOverlay">
+        <video id="demoVideo" muted autoplay loop playsinline>
+            <source src="./assets/intro-video.webm" type="video/webm">
+        </video>
+    </div>
+
+    <!-- UI Overlay -->
+    <div class="ui-overlay">
+        <div class="offerings-container" id="offeringsContainer">
+            <div class="offering-item">💼 Business Consulting</div>
+            <div class="offering-item">📊 Data Analytics</div>
+            <div class="offering-item">🚀 Digital Marketing</div>
+            <div class="offering-item">💡 Innovation Strategy</div>
+            <div class="offering-item">🎯 Growth Solutions</div>
+        </div>
+        
+        <div class="buttons-container">
+            <button class="ar-button linkedin-btn" onclick="openLinkedIn()">
+                LinkedIn
+            </button>
+            <button class="ar-button contact-btn" onclick="openContact()">
+                Contact Us
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let markerFound = false;
+        let video = null;
+        let demoVideo = null;
+        let demoVideoOverlay = null;
+        let offeringsContainer = null;
+        let loadingMessage = null;
+        let scene = null;
+        
+        // Wait for DOM to load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing AR...');
+            
+            video = document.querySelector('#introVideo');
+            demoVideo = document.querySelector('#demoVideo');
+            demoVideoOverlay = document.querySelector('#demoVideoOverlay');
+            offeringsContainer = document.querySelector('#offeringsContainer');
+            loadingMessage = document.querySelector('#loadingMessage');
+            scene = document.querySelector('a-scene');
+            
+            // Show offerings by default (they should be visible even without marker)
+            if (offeringsContainer) {
+                setTimeout(() => {
+                    offeringsContainer.classList.add('visible');
+                }, 1000);
+            }
+            
+            // Show demo video overlay after 3 seconds (simulating AR experience)
+            setTimeout(() => {
+                if (demoVideoOverlay && !markerFound) {
+                    demoVideoOverlay.classList.add('visible');
+                    console.log('📹 Demo video overlay activated');
+                    
+                    // Try to play demo video
+                    if (demoVideo) {
+                        demoVideo.play().catch(e => {
+                            console.log('Demo video autoplay failed, will play on user interaction');
+                        });
+                    }
+                }
+            }, 3000);
+            
+            // Wait for A-Frame to initialize
+            if (scene) {
+                if (scene.hasLoaded) {
+                    setupAREvents();
+                } else {
+                    scene.addEventListener('loaded', setupAREvents);
+                }
+            }
+            
+            // Setup video
+            if (video) {
+                video.addEventListener('loadeddata', function() {
+                    console.log('Video loaded successfully');
+                });
+                
+                video.addEventListener('error', function(e) {
+                    console.error('Video loading error:', e);
+                });
+                
+                video.addEventListener('canplay', function() {
+                    console.log('Video can play');
+                });
+            }
+        });
+        
+        function setupAREvents() {
+            console.log('Setting up AR events...');
+            const marker = document.querySelector('#markerA');
+            
+            if (marker) {
+                // Marker found event
+                marker.addEventListener('markerFound', function() {
+                    console.log('🎯 Marker detected! Starting AR experience...');
+                    markerFound = true;
+                    
+                    // Hide loading message
+                    if (loadingMessage) {
+                        loadingMessage.style.display = 'none';
+                    }
+                    
+                    // Hide demo video overlay (real AR takes over)
+                    if (demoVideoOverlay) {
+                        demoVideoOverlay.classList.remove('visible');
+                    }
+                    
+                    // Ensure offerings are visible
+                    if (offeringsContainer) {
+                        offeringsContainer.classList.add('visible');
+                    }
+                    
+                    // Play AR video
+                    if (video) {
+                        const playPromise = video.play();
+                        if (playPromise !== undefined) {
+                            playPromise
+                                .then(() => {
+                                    console.log('✅ AR Video playing successfully');
+                                })
+                                .catch(error => {
+                                    console.log('❌ AR Video autoplay failed:', error);
+                                    console.log('📱 User interaction required for video playback');
+                                });
+                        }
+                    }
+                    
+                    // Add visual feedback
+                    document.body.style.borderTop = '5px solid #00ff00';
+                });
+                
+                // Marker lost event
+                marker.addEventListener('markerLost', function() {
+                    console.log('📍 Marker lost');
+                    markerFound = false;
+                    
+                    // Show loading message
+                    if (loadingMessage) {
+                        loadingMessage.style.display = 'block';
+                    }
+                    
+                    // Show demo video overlay again (fallback experience)
+                    setTimeout(() => {
+                        if (demoVideoOverlay && !markerFound) {
+                            demoVideoOverlay.classList.add('visible');
+                        }
+                    }, 2000);
+                    
+                    // Keep offerings visible (they float beside video)
+                    // Don't hide them when marker is lost
+                    
+                    // Pause AR video
+                    if (video) {
+                        video.pause();
+                    }
+                    
+                    // Remove visual feedback
+                    document.body.style.borderTop = 'none';
+                });
+            } else {
+                console.error('❌ Marker element not found');
+            }
+        }
+        
+        // Button functions
+        function openLinkedIn() {
+            // Replace with actual LinkedIn profile URL
+            window.open('https://www.linkedin.com/in/yourprofile', '_blank');
+        }
+        
+        function openContact() {
+            // Replace with actual contact information
+            window.open('mailto:contact@yourcompany.com?subject=Business Inquiry', '_blank');
+        }
+        
+        // Enable camera permissions
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+                console.log('📹 Camera access granted');
+            })
+            .catch(function(err) {
+                console.error('❌ Camera access denied:', err);
+                alert('Camera access is required for AR experience. Please allow camera permissions and refresh the page.');
+            });
+            
+        // Add click handler for video play (in case autoplay fails)
+        document.addEventListener('click', function() {
+            // Try to play AR video if marker is found
+            if (video && markerFound && video.paused) {
+                video.play().catch(e => console.log('AR Video play on click failed:', e));
+            }
+            
+            // Try to play demo video if it's visible
+            if (demoVideo && demoVideo.paused) {
+                demoVideo.play().catch(e => console.log('Demo video play on click failed:', e));
+            }
+        });
+        
+        // Debug information
+        console.log('🔍 AR.js WebAR Business Card Debug Info:');
+        console.log('📁 Pattern file: ./assets/pattern-business-card.patt');
+        console.log('🎥 Video file: ./assets/intro-video.webm');
+        console.log('📱 Point camera at the business card pattern to activate AR');
+    </script>
+</body>
+</html>

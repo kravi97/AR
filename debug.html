@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebAR Debug Dashboard</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: #f5f5f5;
+        }
+        .debug-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status { 
+            padding: 10px; 
+            margin: 10px 0; 
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .warning { background: #fff3cd; color: #856404; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        
+        .test-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .test-link {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .test-link:hover { background: #0056b3; }
+        
+        .checklist {
+            background: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 WebAR Business Card - Debug Dashboard</h1>
+    
+    <div class="debug-container">
+        <h2>🚀 Quick Test Links</h2>
+        <div class="test-links">
+            <a href="http://localhost:8080" class="test-link" target="_blank">🎯 Main AR App</a>
+            <a href="http://localhost:8080/test-pattern.html" class="test-link" target="_blank">📋 Test Pattern</a>
+        </div>
+    </div>
+    
+    <div class="debug-container">
+        <h2>📋 Pre-Flight Checklist</h2>
+        
+        <div class="checklist">
+            <h3>✅ Server Status</h3>
+            <div class="status success">Server running at http://localhost:8080</div>
+            
+            <h3>📁 Required Files</h3>
+            <div class="status info">
+                ✓ index.html - Main AR application<br>
+                ✓ Pattern file: pattern-Screenshot 2025-11-05 113126.patt<br>
+                ✓ Video file: vecteezy_15-seconds-countdown-timer-countdown-timer-15-second-15_29092810.webm
+            </div>
+            
+            <h3>🎯 AR Requirements Met</h3>
+            <div class="status success">
+                ✓ Image tracking with pattern recognition<br>
+                ✓ Video overlay with transparent background<br>
+                ✓ 5 key offerings displayed as floating text<br>
+                ✓ LinkedIn + Contact Us buttons<br>
+                ✓ Mobile browser compatible (no app install needed)
+            </div>
+        </div>
+    </div>
+    
+    <div class="debug-container">
+        <h2>🧪 Testing Instructions</h2>
+        
+        <div class="status warning">
+            <strong>Important:</strong> For the AR to work, you need the original business card image that was used to generate the .patt file.
+        </div>
+        
+        <ol>
+            <li><strong>Open the AR app:</strong> Click "Main AR App" link above</li>
+            <li><strong>Grant camera permissions</strong> when prompted by the browser</li>
+            <li><strong>Point camera at business card:</strong> Use the same business card image that was used to create the pattern file</li>
+            <li><strong>Look for indicators:</strong>
+                <ul>
+                    <li>Green border at top of screen = Pattern detected</li>
+                    <li>Video should appear overlaid on the business card</li>
+                    <li>5 key offerings appear on the right side</li>
+                    <li>LinkedIn and Contact buttons at bottom</li>
+                </ul>
+            </li>
+        </ol>
+        
+        <div class="status info">
+            <strong>Don't have the business card?</strong> Use the "Test Pattern" link to display a test pattern on another screen or print it out.
+        </div>
+    </div>
+    
+    <div class="debug-container">
+        <h2>🔧 Troubleshooting</h2>
+        
+        <h3>❌ Pattern Not Detected</h3>
+        <ul>
+            <li>Ensure good lighting conditions</li>
+            <li>Hold the business card steady</li>
+            <li>Try different distances (arm's length usually works best)</li>
+            <li>Make sure the business card is flat and clearly visible</li>
+            <li>Check browser console (F12) for debug messages</li>
+        </ul>
+        
+        <h3>🎥 Video Not Showing</h3>
+        <ul>
+            <li>Pattern must be detected first</li>
+            <li>Video autoplay may be blocked - tap screen to play</li>
+            <li>Check if video file loaded correctly</li>
+            <li>Look for green border indicating pattern detection</li>
+        </ul>
+        
+        <h3>📱 Camera Issues</h3>
+        <ul>
+            <li>Allow camera permissions when prompted</li>
+            <li>Use HTTPS or localhost (camera required for security)</li>
+            <li>Close other apps using the camera</li>
+            <li>Refresh the page and try again</li>
+        </ul>
+        
+        <h3>📋 Key Offerings Not Visible</h3>
+        <ul>
+            <li>They should appear as overlay elements on the right</li>
+            <li>Also appear as 3D text in AR space when pattern detected</li>
+            <li>Check if they're hidden behind other elements</li>
+        </ul>
+    </div>
+    
+    <div class="debug-container">
+        <h2>⚙️ Configuration</h2>
+        
+        <div class="status info">
+            <strong>Current Settings:</strong><br>
+            • AR.js with pattern tracking<br>
+            • Debug mode enabled (check browser console)<br>
+            • Video: WebM format with transparency support<br>
+            • Mobile optimized with touch controls<br>
+            • No app installation required
+        </div>
+    </div>
+    
+    <script>
+        // Auto-refresh status
+        setInterval(() => {
+            fetch('http://localhost:8080')
+                .then(() => {
+                    document.querySelector('.status.success').innerHTML = '✅ Server running at http://localhost:8080 (Last check: ' + new Date().toLocaleTimeString() + ')';
+                })
+                .catch(() => {
+                    document.querySelector('.status.success').className = 'status error';
+                    document.querySelector('.status.error').innerHTML = '❌ Server not responding (Last check: ' + new Date().toLocaleTimeString() + ')';
+                });
+        }, 10000);
+    </script>
+</body>
+</html>
