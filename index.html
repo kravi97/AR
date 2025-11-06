@@ -5,33 +5,124 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebAR Business Card</title>
     
-    <!-- A-Frame and AR.js -->
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar-nft.js"></script>
-    
     <style>
-        body {
+        * {
             margin: 0;
-            font-family: 'Arial', sans-serif;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             overflow: hidden;
         }
         
-        .ar-container {
+        .container {
             position: relative;
             width: 100vw;
             height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        .ui-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
+        /* Center video */
+        .center-video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 400px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+        
+        .center-video video {
             width: 100%;
             height: 100%;
-            pointer-events: none;
-            z-index: 1000;
+            object-fit: cover;
         }
         
+        /* Service cards container */
+        .services-container {
+            position: relative;
+            width: 900px;
+            height: 600px;
+        }
+        
+        /* Individual service card */
+        .service-card {
+            position: absolute;
+            width: 280px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .service-icon {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+        }
+        
+        .service-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+        
+        .service-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        /* Positioning service cards around the video */
+        .card1 {
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .card2 {
+            top: 20%;
+            right: 0;
+        }
+        
+        .card3 {
+            bottom: 20%;
+            right: 0;
+        }
+        
+        .card4 {
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .card5 {
+            top: 20%;
+            left: 0;
+        }
+        
+        /* Buttons */
         .buttons-container {
             position: fixed;
             bottom: 30px;
@@ -39,515 +130,159 @@
             transform: translateX(-50%);
             display: flex;
             gap: 20px;
-            pointer-events: auto;
-            z-index: 300;
+            z-index: 100;
         }
         
         .ar-button {
-            padding: 12px 24px;
+            padding: 15px 30px;
             border: none;
-            border-radius: 25px;
+            border-radius: 50px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            text-decoration: none;
+            color: white;
         }
         
         .linkedin-btn {
             background: linear-gradient(45deg, #0077b5, #00a0dc);
-            color: white;
         }
         
         .contact-btn {
             background: linear-gradient(45deg, #28a745, #20c997);
-            color: white;
         }
         
         .ar-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
         
-        .offerings-container {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-            z-index: 200;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .offerings-container.visible {
-            opacity: 1;
-        }
-        
-        /* Full screen transparent background video overlay */
-        .demo-video-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 50;
-            opacity: 0;
-            transition: opacity 2s ease;
-            pointer-events: none;
-        }
-        
-        .demo-video-overlay.visible {
-            opacity: 0.3;
-        }
-        
-        .demo-video-overlay video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            mix-blend-mode: screen;
-            filter: contrast(1.1) brightness(1.2) saturate(0.8);
-        }
-        
-        /* Remove the prominent video layer - we only need transparent overlay */
-        .background-video-layer {
-            display: none;
-        }
-        
-        .demo-overlay-label {
-            display: none;
-        }
-        
-        .offering-item {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 15px 25px;
-            margin: 0;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            backdrop-filter: blur(15px);
-            animation: slideInCenter 0.6s ease forwards;
-            min-width: 250px;
-            text-align: center;
-            border: 2px solid rgba(255, 255, 255, 0.5);
-        }
-        
-        .offering-item:nth-child(1) { animation-delay: 0.1s; }
-        .offering-item:nth-child(2) { animation-delay: 0.2s; }
-        .offering-item:nth-child(3) { animation-delay: 0.3s; }
-        .offering-item:nth-child(4) { animation-delay: 0.4s; }
-        .offering-item:nth-child(5) { animation-delay: 0.5s; }
-        
-        @keyframes slideInCenter {
-            from {
-                transform: scale(0.8);
-                opacity: 0;
+        @media (max-width: 1200px) {
+            .services-container {
+                width: 700px;
+                height: 500px;
             }
-            to {
-                transform: scale(1);
-                opacity: 1;
+            
+            .service-card {
+                width: 220px;
+                padding: 20px;
             }
-        }
-        
-        @keyframes floatVideo {
-            0%, 100% {
-                transform: translate(-50%, -50%) scale(1);
+            
+            .center-video {
+                width: 250px;
+                height: 320px;
             }
-            50% {
-                transform: translate(-50%, -50%) scale(1.02);
-            }
-        }
-        
-
-        
-        .loading-message {
-            position: fixed;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            z-index: 2000;
-            font-size: 14px;
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,0.3);
-            opacity: 0.95;
-        }
-        
-        .click-to-play {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255,255,255,0.95);
-            color: #333;
-            padding: 15px 25px;
-            border-radius: 35px;
-            z-index: 2000;
-            font-size: 16px;
-            font-weight: bold;
-            box-shadow: 0 6px 25px rgba(0,0,0,0.4);
-            cursor: pointer;
-            display: block;
-            animation: pulse 2s infinite;
-            border: 2px solid rgba(0,0,0,0.1);
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: translateX(-50%) scale(1); }
-            50% { transform: translateX(-50%) scale(1.05); }
         }
         
         @media (max-width: 768px) {
-            .offerings-container {
-                right: 10px;
-                font-size: 12px;
+            .services-container {
+                width: 100%;
+                height: 100%;
+                padding: 20px;
             }
             
-            .offering-item {
-                padding: 8px 12px;
-                font-size: 12px;
+            .service-card {
+                width: 200px;
+                padding: 15px;
             }
             
-            .buttons-container {
-                bottom: 10px;
-                gap: 15px;
+            .center-video {
+                width: 200px;
+                height: 250px;
             }
             
-            .ar-button {
-                padding: 10px 20px;
-                font-size: 14px;
+            .card1, .card4 {
+                transform: translateX(-50%) scale(0.9);
+            }
+            
+            .card2, .card3, .card5 {
+                transform: scale(0.9);
             }
         }
     </style>
 </head>
 <body>
-    <div class="loading-message" id="loadingMessage">
-        🎯 Point camera at business card for full AR • Currently showing preview
-    </div>
-    
-    <div class="click-to-play" id="clickToPlay">
-        👆 Tap anywhere to start video
-    </div>
-    
-    <div class="ar-container">
-        <a-scene
-            embedded
-            arjs="sourceType: webcam; debugUIEnabled: true; detectionMode: mono_and_matrix; matrixCodeType: 3x3; trackingMethod: best; maxDetectionRate: 60; canvasWidth: 640; canvasHeight: 480;"
-            vr-mode-ui="enabled: false;"
-            renderer="logarithmicDepthBuffer: true; antialias: true; colorManagement: true;"
-            loading-screen="enabled: false;"
-            id="arScene">
-            
-            <a-assets>
-                <video id="introVideo" 
-                       src="./assets/intro-video.webm"
-                       preload="auto" 
-                       loop="true" 
-                       muted="true"
-                       crossorigin="anonymous"
-                       playsinline
-                       webkit-playsinline
-                       autoplay="false">
+    <div class="container">
+        <div class="services-container">
+            <!-- Center Video -->
+            <div class="center-video">
+                <video id="centerVideo" autoplay loop muted playsinline>
+                    <source src="./assets/SameerR.webm" type="video/webm">
                 </video>
-            </a-assets>
+            </div>
             
-            <a-marker type="pattern" 
-                     url="./assets/pattern-business-card.patt"
-                     id="markerA"
-                     registerevents
-                     smooth="true"
-                     smoothCount="10"
-                     smoothTolerance="0.01"
-                     smoothThreshold="5">
-                
-                <!-- Video plane -->
-                <a-video
-                    src="#introVideo"
-                    width="6"
-                    height="4"
-                    position="0 0 0.1"
-                    rotation="0 0 0"
-                    material="transparent: true; alphaTest: 0.1; opacity: 1.0; shader: flat"
-                    id="videoPlane">
-                </a-video>
-                
-                <!-- Backup plane for better video visibility -->
-                <a-plane 
-                    position="0 0 0" 
-                    rotation="0 0 0" 
-                    width="6.2" 
-                    height="4.2" 
-                    color="#ffffff" 
-                    opacity="0.8"
-                    material="shader: flat">
-                </a-plane>
-                
-                <!-- Text labels for offerings (3D text in AR space) -->
-                <a-text 
-                    value="💼 Business Consulting" 
-                    position="2.5 1.5 0" 
-                    rotation="0 0 0"
-                    color="#ffffff"
-                    font="kelsonsans"
-                    width="8"
-                    side="double"
-                    material="shader: msdf; alphaTest: 0.5"
-                    id="offering1">
-                </a-text>
-                
-                <a-text 
-                    value="📊 Data Analytics" 
-                    position="2.5 1 0" 
-                    rotation="0 0 0"
-                    color="#ffffff"
-                    font="kelsonsans"
-                    width="8"
-                    side="double"
-                    material="shader: msdf; alphaTest: 0.5"
-                    id="offering2">
-                </a-text>
-                
-                <a-text 
-                    value="🚀 Digital Marketing" 
-                    position="2.5 0.5 0" 
-                    rotation="0 0 0"
-                    color="#ffffff"
-                    font="kelsonsans"
-                    width="8"
-                    side="double"
-                    material="shader: msdf; alphaTest: 0.5"
-                    id="offering3">
-                </a-text>
-                
-                <a-text 
-                    value="💡 Innovation Strategy" 
-                    position="2.5 0 0" 
-                    rotation="0 0 0"
-                    color="#ffffff"
-                    font="kelsonsans"
-                    width="8"
-                    side="double"
-                    material="shader: msdf; alphaTest: 0.5"
-                    id="offering4">
-                </a-text>
-                
-                <a-text 
-                    value="🎯 Growth Solutions" 
-                    position="2.5 -0.5 0" 
-                    rotation="0 0 0"
-                    color="#ffffff"
-                    font="kelsonsans"
-                    width="8"
-                    side="double"
-                    material="shader: msdf; alphaTest: 0.5"
-                    id="offering5">
-                </a-text>
-                
-            </a-marker>
+            <!-- Service Cards -->
+            <div class="service-card card1">
+                <img src="./assets/img/ABP (1).png" alt="ABP" class="service-icon">
+                <div class="service-title">Enterprise-grade .NET & ABP Expertise</div>
+                <div class="service-description">building robust, enterprise-level solutions</div>
+            </div>
             
-            <a-entity camera></a-entity>
-        </a-scene>
-    </div>
+            <div class="service-card card2">
+                <img src="./assets/img/D2C (1).png" alt="D2C" class="service-icon">
+                <div class="service-title">AI accelerated Front end Design to Code Platform</div>
+                <div class="service-description">transforming designs into production-ready code</div>
+            </div>
+            
+            <div class="service-card card3">
+                <img src="./assets/img/DS (1).png" alt="DS" class="service-icon">
+                <div class="service-title">Adaptive Design System</div>
+                <div class="service-description">that is scalable, flexible design solutions</div>
+            </div>
+            
+            <div class="service-card card4">
+                <img src="./assets/img/DTW (1).png" alt="DTW" class="service-icon">
+                <div class="service-title">Interactive Design Thinking Workshops</div>
+                <div class="service-description">helping teams innovate collaboratively</div>
+            </div>
+            
+            <div class="service-card card5">
+                <img src="./assets/img/Spec Driven (1).png" alt="Spec Driven" class="service-icon">
+                <div class="service-title">Spec Driven Product Engineering with AI</div>
+                <div class="service-description">smarter, more precise development</div>
+            </div>
+        </div>
+    </div></body>
     
-    <!-- Transparent Video Overlay (AR Effect) -->
-    <div class="demo-video-overlay" id="demoVideoOverlay">
-        <video id="demoVideo" muted autoplay loop playsinline>
-            <source src="./assets/intro-video.webm" type="video/webm">
-        </video>
-    </div>
-
-    <!-- UI Overlay -->
-    <div class="ui-overlay">
-        <div class="offerings-container" id="offeringsContainer">
-            <div class="offering-item">💼 Business Consulting</div>
-            <div class="offering-item">📊 Data Analytics</div>
-            <div class="offering-item">🚀 Digital Marketing</div>
-            <div class="offering-item">💡 Innovation Strategy</div>
-            <div class="offering-item">🎯 Growth Solutions</div>
-        </div>
-        
-        <div class="buttons-container">
-            <button class="ar-button linkedin-btn" onclick="openLinkedIn()">
-                LinkedIn
-            </button>
-            <button class="ar-button contact-btn" onclick="openContact()">
-                Contact Us
-            </button>
-        </div>
+    <!-- Buttons -->
+    <div class="buttons-container">
+        <button class="ar-button linkedin-btn" onclick="openLinkedIn()">
+            LinkedIn
+        </button>
+        <button class="ar-button contact-btn" onclick="openContact()">
+            Contact Us
+        </button>
     </div>
 
     <script>
-        let markerFound = false;
-        let video = null;
-        let demoVideo = null;
-        let demoVideoOverlay = null;
-        let offeringsContainer = null;
-        let loadingMessage = null;
-        let scene = null;
-        
         // Wait for DOM to load
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, initializing AR...');
+            console.log('🎬 Background video page loaded');
             
-            video = document.querySelector('#introVideo');
-            demoVideo = document.querySelector('#demoVideo');
-            demoVideoOverlay = document.querySelector('#demoVideoOverlay');
-            offeringsContainer = document.querySelector('#offeringsContainer');
-            loadingMessage = document.querySelector('#loadingMessage');
-            scene = document.querySelector('a-scene');
+            const backgroundVideo = document.querySelector('#backgroundVideo');
             
-            // Show offerings by default (they should be visible even without marker)
-            if (offeringsContainer) {
+            // Ensure background video plays
+            if (backgroundVideo) {
+                backgroundVideo.addEventListener('loadeddata', function() {
+                    console.log('✅ Background video loaded successfully');
+                });
+                
+                backgroundVideo.addEventListener('error', function(e) {
+                    console.error('❌ Background video loading error:', e);
+                });
+                
+                // Try to play video if it's not already playing
                 setTimeout(() => {
-                    offeringsContainer.classList.add('visible');
-                }, 1000);
-            }
-            
-            // Show transparent video overlay after 1 second (simulating AR experience)
-            setTimeout(() => {
-                console.log('🎬 Activating transparent video overlay...');
-                
-                // Show transparent video overlay
-                if (demoVideoOverlay && !markerFound) {
-                    demoVideoOverlay.classList.add('visible');
-                    console.log('📹 Transparent video overlay activated');
-                    
-                    // Try to play the transparent overlay video
-                    if (demoVideo) {
-                        console.log('🎬 Attempting to play transparent overlay video...');
-                        demoVideo.currentTime = 0;
-                        const playPromise = demoVideo.play();
-                        
-                        if (playPromise !== undefined) {
-                            playPromise
-                                .then(() => {
-                                    console.log('✅ Transparent overlay video playing successfully');
-                                    // Hide click-to-play message
-                                    const clickToPlay = document.getElementById('clickToPlay');
-                                    if (clickToPlay) clickToPlay.style.display = 'none';
-                                })
-                                .catch(error => {
-                                    console.log('❌ Transparent overlay video autoplay blocked:', error);
-                                    console.log('📱 Click anywhere to start video');
-                                    // Show click-to-play message
-                                    const clickToPlay = document.getElementById('clickToPlay');
-                                    if (clickToPlay) clickToPlay.style.display = 'block';
-                                });
-                        }
+                    if (backgroundVideo.paused) {
+                        backgroundVideo.play()
+                            .then(() => console.log('✅ Background video started playing'))
+                            .catch(e => console.log('❌ Background video autoplay failed:', e));
                     }
-                }
-            }, 1000);
-            
-            // Wait for A-Frame to initialize
-            if (scene) {
-                if (scene.hasLoaded) {
-                    setupAREvents();
-                } else {
-                    scene.addEventListener('loaded', setupAREvents);
-                }
-            }
-            
-            // Setup video
-            if (video) {
-                video.addEventListener('loadeddata', function() {
-                    console.log('Video loaded successfully');
-                });
-                
-                video.addEventListener('error', function(e) {
-                    console.error('Video loading error:', e);
-                });
-                
-                video.addEventListener('canplay', function() {
-                    console.log('Video can play');
-                });
+                }, 500);
             }
         });
-        
-        function setupAREvents() {
-            console.log('Setting up AR events...');
-            const marker = document.querySelector('#markerA');
-            
-            if (marker) {
-                // Marker found event
-                marker.addEventListener('markerFound', function() {
-                    console.log('🎯 Marker detected! Starting AR experience...');
-                    markerFound = true;
-                    
-                    // Hide loading message
-                    if (loadingMessage) {
-                        loadingMessage.style.display = 'none';
-                    }
-                    
-                    // Hide demo video overlay (real AR takes over)
-                    if (demoVideoOverlay) {
-                        demoVideoOverlay.classList.remove('visible');
-                    }
-                    
-                    // Ensure offerings are visible
-                    if (offeringsContainer) {
-                        offeringsContainer.classList.add('visible');
-                    }
-                    
-                    // Play AR video
-                    if (video) {
-                        const playPromise = video.play();
-                        if (playPromise !== undefined) {
-                            playPromise
-                                .then(() => {
-                                    console.log('✅ AR Video playing successfully');
-                                })
-                                .catch(error => {
-                                    console.log('❌ AR Video autoplay failed:', error);
-                                    console.log('📱 User interaction required for video playback');
-                                });
-                        }
-                    }
-                    
-                    // Add visual feedback
-                    document.body.style.borderTop = '5px solid #00ff00';
-                });
-                
-                // Marker lost event
-                marker.addEventListener('markerLost', function() {
-                    console.log('📍 Marker lost');
-                    markerFound = false;
-                    
-                    // Show loading message
-                    if (loadingMessage) {
-                        loadingMessage.style.display = 'block';
-                    }
-                    
-                    // Show demo video overlay again (fallback experience)
-                    setTimeout(() => {
-                        if (demoVideoOverlay && !markerFound) {
-                            demoVideoOverlay.classList.add('visible');
-                        }
-                    }, 2000);
-                    
-                    // Keep offerings visible (they float beside video)
-                    // Don't hide them when marker is lost
-                    
-                    // Pause AR video
-                    if (video) {
-                        video.pause();
-                    }
-                    
-                    // Remove visual feedback
-                    document.body.style.borderTop = 'none';
-                });
-            } else {
-                console.error('❌ Marker element not found');
-            }
-        }
         
         // Button functions
         function openLinkedIn() {
@@ -560,43 +295,15 @@
             window.open('mailto:contact@yourcompany.com?subject=Business Inquiry', '_blank');
         }
         
-        // Enable camera permissions
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(function(stream) {
-                console.log('📹 Camera access granted');
-            })
-            .catch(function(err) {
-                console.error('❌ Camera access denied:', err);
-                alert('Camera access is required for AR experience. Please allow camera permissions and refresh the page.');
-            });
-            
-        // Add click handler for video play (in case autoplay fails)
+        // Click handler to ensure video plays on user interaction
         document.addEventListener('click', function() {
-            const clickToPlay = document.getElementById('clickToPlay');
-            console.log('👆 User clicked - attempting to play transparent overlay video');
-            
-            // Try to play AR video if marker is found
-            if (video && markerFound && video.paused) {
-                video.play().catch(e => console.log('AR Video play on click failed:', e));
-            }
-            
-            // Try to play transparent overlay video
-            if (demoVideo && demoVideo.paused) {
-                console.log('🎬 Attempting to play transparent overlay video on click');
-                demoVideo.play()
-                    .then(() => {
-                        console.log('✅ Transparent overlay video started playing');
-                        if (clickToPlay) clickToPlay.style.display = 'none';
-                    })
-                    .catch(e => console.log('❌ Transparent overlay video play on click failed:', e));
+            const backgroundVideo = document.querySelector('#backgroundVideo');
+            if (backgroundVideo && backgroundVideo.paused) {
+                backgroundVideo.play()
+                    .then(() => console.log('✅ Background video started playing on click'))
+                    .catch(e => console.log('❌ Background video play failed on click:', e));
             }
         });
-        
-        // Debug information
-        console.log('🔍 AR.js WebAR Business Card Debug Info:');
-        console.log('📁 Pattern file: ./assets/pattern-business-card.patt');
-        console.log('🎥 Video file: ./assets/intro-video.webm');
-        console.log('📱 Point camera at the business card pattern to activate AR');
     </script>
 </body>
 </html>
