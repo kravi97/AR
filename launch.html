@@ -198,11 +198,21 @@
             }
         });
         
-        // Auto-redirect to AR on mobile after 3 seconds (optional)
+        // Pass URL parameters to AR page
         const urlParams = new URLSearchParams(window.location.search);
+        const person = urlParams.get('person');
+        
+        if (person) {
+            // Update AR button to include person parameter
+            const arBtn = document.getElementById('arBtn');
+            arBtn.href = 'ar.html?person=' + person;
+            console.log('Set AR URL with person:', person);
+        }
+        
+        // Auto-redirect to AR on mobile after 3 seconds (optional)
         if (urlParams.get('auto') === 'ar' && isMobile) {
             setTimeout(() => {
-                window.location.href = 'ar.html';
+                window.location.href = 'ar.html' + (person ? '?person=' + person : '');
             }, 2000);
         }
     </script>
