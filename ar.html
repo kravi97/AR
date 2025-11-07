@@ -210,11 +210,9 @@
             <!-- Video Display - Appears above the card (will be set dynamically) -->
             <a-video 
                 id="main-video-display"
-                src="#ar-video-samir"
                 width="1.5"
                 height="2"
-                position="0 0 0.1"
-                play-on-track="videoId: ar-video-samir">
+                position="0 0 0.1">
             </a-video>
             
             <!-- Badge 1 - ABP (Top) -->
@@ -345,9 +343,16 @@
         const urlParams = new URLSearchParams(window.location.search);
         const person = urlParams.get('person') || 'samir'; // Default to samir
         
+        console.log('🔍 URL:', window.location.href);
+        console.log('🔍 URL Parameters:', urlParams.toString());
+        console.log('🔍 Person parameter:', person);
+        
         // Set MindAR target source based on person parameter
         const mindFile = person === 'kaushik' ? './assets/Kaushik.mind' : './assets/samir.mind';
-        console.log('🎯 Loading mind file:', mindFile, 'for person:', person);
+        const videoId = person === 'kaushik' ? 'ar-video-kaushik' : 'ar-video-samir';
+        
+        console.log('🎯 Loading mind file:', mindFile);
+        console.log('📹 Video ID will be:', videoId);
         
         // Update the a-scene mindar-image attribute before scene initialization
         document.addEventListener('DOMContentLoaded', function() {
@@ -362,17 +367,13 @@
                 });
                 console.log('✅ MindAR initialized with:', mindFile);
             }
-        });
-        
-        // Set video source based on URL parameter
-        window.addEventListener('load', function() {
-            const videoDisplay = document.querySelector('#main-video-display');
-            const videoId = person === 'kaushik' ? 'ar-video-kaushik' : 'ar-video-samir';
             
+            // Set video source immediately on DOM ready
+            const videoDisplay = document.querySelector('#main-video-display');
             if (videoDisplay) {
                 videoDisplay.setAttribute('src', '#' + videoId);
                 videoDisplay.setAttribute('play-on-track', 'videoId: ' + videoId);
-                console.log('📹 Video set to:', videoId);
+                console.log('✅ Video element configured with:', videoId);
             }
         });
         
