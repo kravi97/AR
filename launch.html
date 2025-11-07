@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Business Card - Launch</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .launch-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+        
+        p {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-ar {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a6f);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+        
+        .btn-ar:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+        }
+        
+        .btn-card {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+        
+        .device-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        .loading {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0,0,0,0.1);
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="launch-container">
+        <div class="icon">📱</div>
+        <h1>Welcome to AR Business Card</h1>
+        <p>Choose how you want to experience this digital business card</p>
+        
+        <div class="button-group">
+            <a href="ar.html" class="btn btn-ar" id="arBtn">
+                <span>🔮</span>
+                <span>Launch AR Experience</span>
+            </a>
+            <a href="index.html" class="btn btn-card">
+                <span>💼</span>
+                <span>View Digital Card</span>
+            </a>
+        </div>
+        
+        <div class="device-info" id="deviceInfo">
+            <strong>AR Experience:</strong> Point your camera at the business card to see augmented reality content with video and floating badges.
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #667eea;">Launching AR...</p>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-detect and suggest best option
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const hasCamera = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+        
+        if (isMobile && hasCamera) {
+            // On mobile with camera, highlight AR option
+            document.getElementById('deviceInfo').innerHTML = `
+                <strong>✅ AR Ready!</strong> Your device supports AR experience. Click "Launch AR Experience" to get started.
+            `;
+            document.getElementById('deviceInfo').style.background = '#d4edda';
+            document.getElementById('deviceInfo').style.color = '#155724';
+        } else if (!isMobile) {
+            // On desktop, suggest viewing the card
+            document.getElementById('deviceInfo').innerHTML = `
+                <strong>ℹ️ Desktop Detected:</strong> AR experience works best on mobile devices. You can view the digital card or scan the QR code with your phone.
+            `;
+        }
+        
+        // Add click handler to show loading
+        document.getElementById('arBtn').addEventListener('click', function(e) {
+            if (isMobile) {
+                document.querySelector('.button-group').style.display = 'none';
+                document.getElementById('deviceInfo').style.display = 'none';
+                document.getElementById('loading').style.display = 'block';
+            }
+        });
+        
+        // Auto-redirect to AR on mobile after 3 seconds (optional)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('auto') === 'ar' && isMobile) {
+            setTimeout(() => {
+                window.location.href = 'ar.html';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

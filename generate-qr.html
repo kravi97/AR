@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate QR Code for AR Experience</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        
+        .url-options {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .url-option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .url-option:hover {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+        
+        .url-option.selected {
+            border-color: #667eea;
+            background: #e7ebff;
+        }
+        
+        .url-option input[type="radio"] {
+            margin-right: 10px;
+        }
+        
+        .url-option label {
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .url-option .title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .url-option .description {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+        
+        .url-option .url {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #667eea;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+        
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 30px 0;
+            min-height: 300px;
+            align-items: center;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #e9ecef;
+            color: #2c3e50;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        #qrcode canvas, #qrcode img {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔮 Generate QR Code for AR Experience</h1>
+        <p class="subtitle">Choose which URL you want to encode in your QR code</p>
+        
+        <div class="url-options">
+            <div class="url-option selected" onclick="selectOption('launch')">
+                <label>
+                    <input type="radio" name="url" value="launch" checked>
+                    <div>
+                        <div class="title">📱 Launch Screen (Recommended)</div>
+                        <div class="description">Shows a beautiful landing page where users can choose AR experience or regular card view</div>
+                        <div class="url">https://calm-panda-2bd6b0.netlify.app/launch.html</div>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="url-option" onclick="selectOption('ar-direct')">
+                <label>
+                    <input type="radio" name="url" value="ar-direct">
+                    <div>
+                        <div class="title">🔮 Direct AR Experience</div>
+                        <div class="description">Immediately opens camera for AR scanning</div>
+                        <div class="url">https://calm-panda-2bd6b0.netlify.app/ar.html</div>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="url-option" onclick="selectOption('ar-auto')">
+                <label>
+                    <input type="radio" name="url" value="ar-auto">
+                    <div>
+                        <div class="title">⚡ Auto-Redirect on Mobile</div>
+                        <div class="description">Detects mobile devices and auto-redirects to AR experience</div>
+                        <div class="url">https://calm-panda-2bd6b0.netlify.app/?ar=1</div>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="url-option" onclick="selectOption('card')">
+                <label>
+                    <input type="radio" name="url" value="card">
+                    <div>
+                        <div class="title">💼 Digital Business Card</div>
+                        <div class="description">Shows the regular digital business card page</div>
+                        <div class="url">https://calm-panda-2bd6b0.netlify.app/</div>
+                    </div>
+                </label>
+            </div>
+        </div>
+        
+        <div id="qrcode">
+            <p style="color: #7f8c8d;">QR code will appear here...</p>
+        </div>
+        
+        <div class="button-group">
+            <button class="btn btn-primary" onclick="generateQR()">Generate QR Code</button>
+            <button class="btn btn-secondary" onclick="downloadQR()">Download QR Code</button>
+            <a href="index.html" class="btn btn-secondary">Back to Card</a>
+        </div>
+    </div>
+    
+    <script>
+        const urls = {
+            'launch': 'https://calm-panda-2bd6b0.netlify.app/launch.html',
+            'ar-direct': 'https://calm-panda-2bd6b0.netlify.app/ar.html',
+            'ar-auto': 'https://calm-panda-2bd6b0.netlify.app/?ar=1',
+            'card': 'https://calm-panda-2bd6b0.netlify.app/'
+        };
+        
+        let currentQR = null;
+        
+        function selectOption(option) {
+            // Update radio button
+            document.querySelector(`input[value="${option}"]`).checked = true;
+            
+            // Update visual selection
+            document.querySelectorAll('.url-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+        }
+        
+        function generateQR() {
+            const selected = document.querySelector('input[name="url"]:checked').value;
+            const url = urls[selected];
+            
+            // Clear existing QR code
+            const qrcodeDiv = document.getElementById('qrcode');
+            qrcodeDiv.innerHTML = '';
+            
+            // Generate new QR code
+            currentQR = new QRCode(qrcodeDiv, {
+                text: url,
+                width: 256,
+                height: 256,
+                colorDark: '#2c3e50',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+        
+        function downloadQR() {
+            if (!currentQR) {
+                alert('Please generate a QR code first!');
+                return;
+            }
+            
+            const canvas = document.querySelector('#qrcode canvas');
+            if (canvas) {
+                const url = canvas.toDataURL('image/png');
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'ar-business-card-qr.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } else {
+                const img = document.querySelector('#qrcode img');
+                if (img) {
+                    const a = document.createElement('a');
+                    a.href = img.src;
+                    a.download = 'ar-business-card-qr.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }
+            }
+        }
+        
+        // Auto-generate on load
+        window.addEventListener('load', () => {
+            generateQR();
+        });
+    </script>
+</body>
+</html>
