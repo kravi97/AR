@@ -347,8 +347,10 @@
         
         // If mobile device, show AR launch prompt
         if (isMobile && window.location.search.indexOf('view=card') === -1) {
-            // Redirect to launch screen on mobile
-            window.location.href = 'launch.html';
+            // Redirect to launch screen on mobile, preserving URL parameters
+            const urlParams = window.location.search;
+            console.log('📱 Mobile detected, redirecting to launch.html' + urlParams);
+            window.location.href = 'launch.html' + urlParams;
         }
         
         // Wait for DOM to load
