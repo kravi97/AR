@@ -350,18 +350,29 @@
             init: function() {
                 const video = this.el.getAttribute('src');
                 const videoEl = document.querySelector(video);
+                let isFirstScan = true;
                 
                 this.el.sceneEl.addEventListener('targetFound', () => {
                     console.log('✅ Business card detected in component!');
                     if (videoEl) {
                         // Force play immediately
                         videoEl.currentTime = 0; // Reset to start
-                        videoEl.muted = false;
-                        videoEl.volume = 1.0;
+                        
+                        if (isFirstScan) {
+                            // First scan - play muted
+                            videoEl.muted = true;
+                            console.log('🔇 First scan - playing muted');
+                        } else {
+                            // Subsequent scans - play with sound
+                            videoEl.muted = false;
+                            videoEl.volume = 1.0;
+                            console.log('🔊 Subsequent scan - playing with sound');
+                        }
+                        
                         videoEl.play()
                             .then(() => console.log('✅ Video started playing'))
                             .catch(e => {
-                                console.log('Video play with sound failed, trying muted:', e);
+                                console.log('Video play error:', e);
                                 videoEl.muted = true;
                                 videoEl.play()
                                     .then(() => console.log('✅ Video playing muted'))
@@ -375,6 +386,7 @@
                     if (videoEl && !videoEl.paused) {
                         videoEl.pause();
                         videoEl.currentTime = 0; // Reset for next scan
+                        isFirstScan = false; // Mark that first scan is complete
                     }
                 });
             }
@@ -427,11 +439,18 @@
                 });
             
             // When business card is found
+            let scanCount = 0;
             sceneEl.addEventListener('targetFound', event => {
                 console.log('✅ Target Found - Showing AR Content');
+                scanCount++;
                 instructions.classList.add('found');
                 instructions.querySelector('h3').textContent = '✅ Business Card Detected!';
-                instructions.querySelector('p').textContent = 'Tap screen to enable sound';
+                
+                if (scanCount === 1) {
+                    instructions.querySelector('p').textContent = '🔇 Scan again for sound';
+                } else {
+                    instructions.querySelector('p').textContent = '🔊 Audio enabled!';
+                }
                 
                 // Video is already handled by play-on-track component
                 // Just update UI and show badges
