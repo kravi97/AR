@@ -200,6 +200,7 @@
         <a-assets>
             <video id="ar-video-samir" src="./assets/SameerR.webm" preload="auto" loop="true" muted crossorigin="anonymous" playsinline webkit-playsinline autoplay="false"></video>
             <video id="ar-video-kaushik" src="./assets/KaushikG.webm" preload="auto" loop="true" muted crossorigin="anonymous" playsinline webkit-playsinline autoplay="false"></video>
+            <video id="ar-video-shalvi" src="./assets/plsbhaiii.webm" preload="auto" loop="true" muted crossorigin="anonymous" playsinline webkit-playsinline autoplay="false"></video>
         </a-assets>
         
         <!-- Camera -->
@@ -349,8 +350,18 @@
         console.log('🔍 Person parameter:', person);
         
         // Set MindAR target source based on person parameter
-        const mindFile = person === 'kaushik' ? './assets/Kaushik.mind' : './assets/samirR.mind';
-        const videoId = person === 'kaushik' ? 'ar-video-kaushik' : 'ar-video-samir';
+        let mindFile, videoId;
+        
+        if (person === 'kaushik') {
+            mindFile = './assets/Kaushik.mind';
+            videoId = 'ar-video-kaushik';
+        } else if (person === 'shalvi') {
+            mindFile = './assets/Shalvi.mind';
+            videoId = 'ar-video-shalvi';
+        } else {
+            mindFile = './assets/samirR.mind';
+            videoId = 'ar-video-samir';
+        }
         
         console.log('🎯 Loading mind file:', mindFile);
         console.log('📹 Video ID will be:', videoId);
@@ -380,7 +391,11 @@
             // Update visual indicator
             const indicator = document.getElementById('person-indicator');
             if (indicator) {
-                indicator.textContent = `Loading: ${person === 'kaushik' ? 'Kaushik' : 'Samir'}'s AR Card`;
+                let personName = 'Samir';
+                if (person === 'kaushik') personName = 'Kaushik';
+                else if (person === 'shalvi') personName = 'Shalvi';
+                
+                indicator.textContent = `Loading: ${personName}'s AR Card`;
             }
         });
         
