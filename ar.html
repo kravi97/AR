@@ -197,7 +197,7 @@
         onload="handleSceneLoad()">
         
         <a-assets>
-            <video id="ar-video" src="./assets/SameerR.webm" preload="auto" loop="true" crossorigin="anonymous" playsinline webkit-playsinline autoplay="false"></video>
+            <video id="ar-video" src="./assets/SameerR.webm" preload="auto" loop="true" muted crossorigin="anonymous" playsinline webkit-playsinline autoplay="false"></video>
         </a-assets>
         
         <!-- Camera -->
@@ -352,32 +352,39 @@
                 const videoEl = document.querySelector(video);
                 let isFirstScan = true;
                 
+                // Ensure video starts muted
+                if (videoEl) {
+                    videoEl.muted = true;
+                    videoEl.volume = 0;
+                }
+                
                 this.el.sceneEl.addEventListener('targetFound', () => {
-                    console.log('✅ Business card detected in component!');
+                    console.log('✅ Business card detected in component! First scan:', isFirstScan);
                     if (videoEl) {
-                        // Force play immediately
-                        videoEl.currentTime = 0; // Reset to start
+                        // Reset video
+                        videoEl.pause();
+                        videoEl.currentTime = 0;
                         
                         if (isFirstScan) {
-                            // First scan - play muted
+                            // First scan - ensure muted
                             videoEl.muted = true;
-                            console.log('🔇 First scan - playing muted');
+                            videoEl.volume = 0;
+                            console.log('🔇 First scan - playing MUTED');
                         } else {
-                            // Subsequent scans - play with sound
+                            // Subsequent scans - enable sound
                             videoEl.muted = false;
                             videoEl.volume = 1.0;
-                            console.log('🔊 Subsequent scan - playing with sound');
+                            console.log('🔊 Subsequent scan - playing WITH SOUND');
                         }
                         
-                        videoEl.play()
-                            .then(() => console.log('✅ Video started playing'))
-                            .catch(e => {
-                                console.log('Video play error:', e);
-                                videoEl.muted = true;
-                                videoEl.play()
-                                    .then(() => console.log('✅ Video playing muted'))
-                                    .catch(err => console.log('Video play error:', err));
-                            });
+                        // Play video
+                        setTimeout(() => {
+                            videoEl.play()
+                                .then(() => console.log('✅ Video playing, muted:', videoEl.muted, 'volume:', videoEl.volume))
+                                .catch(e => {
+                                    console.log('Video play error:', e);
+                                });
+                        }, 100);
                     }
                 });
                 
@@ -385,8 +392,9 @@
                     console.log('❌ Business card lost');
                     if (videoEl && !videoEl.paused) {
                         videoEl.pause();
-                        videoEl.currentTime = 0; // Reset for next scan
-                        isFirstScan = false; // Mark that first scan is complete
+                        videoEl.currentTime = 0;
+                        isFirstScan = false; // Next scan will have sound
+                        console.log('Setting isFirstScan to false');
                     }
                 });
             }
