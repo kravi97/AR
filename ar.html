@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Business Card - Image Tracking</title>
+    
+    <!-- AR.js with A-Frame -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar-nft.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        #arjs-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            color: white;
+        }
+        
+        #arjs-loader .loader {
+            border: 8px solid rgba(255,255,255,0.3);
+            border-top: 8px solid white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        #arjs-loader h1 {
+            font-size: 24px;
+            margin: 10px 0;
+        }
+        
+        #arjs-loader p {
+            font-size: 16px;
+            opacity: 0.8;
+            text-align: center;
+            padding: 0 20px;
+        }
+        
+        .ar-instructions {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            z-index: 100;
+            text-align: center;
+            max-width: 90%;
+            backdrop-filter: blur(10px);
+        }
+        
+        .ar-instructions h3 {
+            margin: 0 0 8px 0;
+            font-size: 18px;
+        }
+        
+        .ar-instructions p {
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .back-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+        }
+        
+        .qr-info {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 100;
+            max-width: 200px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .qr-info img {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .qr-info p {
+            margin: 0;
+            font-size: 12px;
+            color: #333;
+            text-align: center;
+        }
+        
+        @media (max-width: 600px) {
+            .qr-info {
+                max-width: 120px;
+                padding: 10px;
+            }
+            
+            .ar-instructions h3 {
+                font-size: 16px;
+            }
+            
+            .ar-instructions p {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="arjs-loader">
+        <div class="loader"></div>
+        <h1>Loading AR Experience...</h1>
+        <p>Point your camera at the business card or QR code</p>
+    </div>
+    
+    <!-- AR Instructions -->
+    <div class="ar-instructions">
+        <h3>📱 AR Instructions</h3>
+        <p>Point camera at the business card pattern to view AR content</p>
+    </div>
+    
+    <!-- Back Button -->
+    <a href="index.html" class="back-button">← Back to Card</a>
+    
+    <!-- QR Code Info -->
+    <div class="qr-info">
+        <img src="./assets/QR Images/qrcode_samir_calm-panda-2bd6b0.netlify.app.png" alt="QR Code">
+        <p><strong>Scan this QR</strong><br>to share</p>
+    </div>
+    
+    <!-- A-Frame AR Scene -->
+    <a-scene
+        vr-mode-ui="enabled: false"
+        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+        embedded
+        renderer="logarithmicDepthBuffer: true; precision: medium;">
+        
+        <!-- Camera -->
+        <a-entity camera></a-entity>
+        
+        <!-- AR Marker with Pattern -->
+        <a-marker 
+            type="pattern" 
+            preset="custom"
+            url="./assets/pattern-business-card.patt"
+            smooth="true"
+            smoothCount="10"
+            smoothTolerance="0.01"
+            smoothThreshold="5">
+            
+            <!-- Video Display -->
+            <a-video 
+                src="./assets/SameerR.webm"
+                width="2"
+                height="2.5"
+                position="0 1.25 0"
+                rotation="-90 0 0"
+                play="true"
+                loop="true"
+                muted="true">
+            </a-video>
+            
+            <!-- Service Cards as 3D Planes -->
+            
+            <!-- ABP Card - Top -->
+            <a-plane
+                position="0 3 0"
+                rotation="-90 0 0"
+                width="1.5"
+                height="1"
+                color="#ffffff"
+                opacity="0.95">
+                <a-text 
+                    value="Enterprise-grade .NET & ABP Expertise"
+                    align="center"
+                    width="3"
+                    color="#2c3e50"
+                    position="0 0.2 0.01"></a-text>
+                <a-text 
+                    value="building robust, enterprise-level solutions"
+                    align="center"
+                    width="2.5"
+                    color="#7f8c8d"
+                    position="0 -0.1 0.01"></a-text>
+            </a-plane>
+            
+            <!-- D2C Card - Left -->
+            <a-plane
+                position="-1.8 1.5 0"
+                rotation="-90 0 0"
+                width="1.5"
+                height="1"
+                color="#ffffff"
+                opacity="0.95">
+                <a-text 
+                    value="AI accelerated Front end Design to Code Platform"
+                    align="center"
+                    width="2.8"
+                    color="#2c3e50"
+                    position="0 0.2 0.01"></a-text>
+                <a-text 
+                    value="transforming designs into production-ready code"
+                    align="center"
+                    width="2.5"
+                    color="#7f8c8d"
+                    position="0 -0.1 0.01"></a-text>
+            </a-plane>
+            
+            <!-- DS Card - Left Bottom -->
+            <a-plane
+                position="-1.8 0 0"
+                rotation="-90 0 0"
+                width="1.5"
+                height="1"
+                color="#ffffff"
+                opacity="0.95">
+                <a-text 
+                    value="Adaptive Design System"
+                    align="center"
+                    width="3"
+                    color="#2c3e50"
+                    position="0 0.2 0.01"></a-text>
+                <a-text 
+                    value="scalable, flexible design solutions"
+                    align="center"
+                    width="2.5"
+                    color="#7f8c8d"
+                    position="0 -0.1 0.01"></a-text>
+            </a-plane>
+            
+            <!-- DTW Card - Right -->
+            <a-plane
+                position="1.8 1.5 0"
+                rotation="-90 0 0"
+                width="1.5"
+                height="1"
+                color="#ffffff"
+                opacity="0.95">
+                <a-text 
+                    value="Interactive Design Thinking Workshops"
+                    align="center"
+                    width="2.8"
+                    color="#2c3e50"
+                    position="0 0.2 0.01"></a-text>
+                <a-text 
+                    value="helping teams innovate collaboratively"
+                    align="center"
+                    width="2.5"
+                    color="#7f8c8d"
+                    position="0 -0.1 0.01"></a-text>
+            </a-plane>
+            
+            <!-- Spec Driven Card - Right Bottom -->
+            <a-plane
+                position="1.8 0 0"
+                rotation="-90 0 0"
+                width="1.5"
+                height="1"
+                color="#ffffff"
+                opacity="0.95">
+                <a-text 
+                    value="Spec Driven Product Engineering with AI"
+                    align="center"
+                    width="2.8"
+                    color="#2c3e50"
+                    position="0 0.2 0.01"></a-text>
+                <a-text 
+                    value="smarter, more precise development"
+                    align="center"
+                    width="2.5"
+                    color="#7f8c8d"
+                    position="0 -0.1 0.01"></a-text>
+            </a-plane>
+            
+        </a-marker>
+    </a-scene>
+    
+    <script>
+        // Hide loading screen when AR is ready
+        window.addEventListener('load', function () {
+            const loader = document.getElementById('arjs-loader');
+            setTimeout(() => {
+                loader.style.display = 'none';
+            }, 2000);
+        });
+        
+        // Log AR events
+        document.querySelector('a-marker').addEventListener('markerFound', function() {
+            console.log('✅ AR Marker detected!');
+        });
+        
+        document.querySelector('a-marker').addEventListener('markerLost', function() {
+            console.log('❌ AR Marker lost');
+        });
+    </script>
+</body>
+</html>

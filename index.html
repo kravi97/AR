@@ -150,6 +150,10 @@
             border: 2px solid rgba(255,255,255,0.2);
         }
         
+        .ar-experience-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a6f);
+        }
+        
         .linkedin-btn {
             background: linear-gradient(45deg, #0077b5, #00a0dc);
         }
@@ -193,81 +197,89 @@
         }
         
         @media (max-width: 900px) {
+            body {
+                overflow-y: auto;
+            }
+            
+            .buttons-container {
+                flex-direction: column;
+                bottom: 15px;
+                gap: 10px;
+                width: 90%;
+                max-width: 300px;
+            }
+            
+            .ar-button {
+                width: 100%;
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+            
             .services-container {
                 width: 100%;
-                height: 100%;
-                padding: 20px;
+                height: auto;
+                min-height: 100vh;
+                padding: 80px 20px 180px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
             }
             
             .service-card {
-                width: 160px;
-                padding: 12px;
+                position: relative !important;
+                width: 90%;
+                max-width: 350px;
+                padding: 15px;
+                top: auto !important;
+                left: auto !important;
+                right: auto !important;
+                bottom: auto !important;
+                transform: none !important;
             }
             
             .service-title {
-                font-size: 13px;
+                font-size: 15px;
             }
             
             .service-description {
-                font-size: 10px;
+                font-size: 12px;
             }
             
             .center-video {
-                width: 280px;
-                height: 380px;
-            }
-            
-            .card1 {
-                top: 50px;
-            }
-            
-            .card2 {
-                top: 25%;
-                left: 140px;
-            }
-            
-            .card3 {
-                bottom: 25%;
-                left: 140px;
-            }
-            
-            .card4 {
-                top: 25%;
-                right: 140px;
-            }
-            
-            .card5 {
-                bottom: 25%;
-                right: 140px;
+                position: relative !important;
+                width: 90%;
+                max-width: 350px;
+                height: 450px;
+                top: auto !important;
+                left: auto !important;
+                transform: none !important;
+                margin: 20px auto;
             }
         }
         
         @media (max-width: 600px) {
             .service-card {
-                width: 140px;
-                padding: 10px;
+                width: 95%;
+                padding: 12px;
             }
             
             .center-video {
-                width: 280px;
-                height: 380px;
-            }
-            
-            .services-container {
                 width: 95%;
-                height: 95%;
+                height: 400px;
             }
             
-            .card1 {
-                top: 40px;
+            .service-icon {
+                width: 40px;
+                height: 40px;
             }
             
-            .card2, .card3 {
-                left: 140px;
+            .service-title {
+                font-size: 14px;
             }
             
-            .card4, .card5 {
-                right: 140px;
+            .service-description {
+                font-size: 11px;
             }
         }
     </style>
@@ -317,6 +329,9 @@
     
     <!-- Buttons -->
     <div class="buttons-container">
+        <button class="ar-button ar-experience-btn" onclick="openAR()">
+            📱 AR Experience
+        </button>
         <button class="ar-button linkedin-btn" onclick="openLinkedIn()">
             LinkedIn
         </button>
@@ -354,6 +369,11 @@
         });
         
         // Button functions
+        function openAR() {
+            // Open AR experience page
+            window.location.href = 'ar.html';
+        }
+        
         function openLinkedIn() {
             // Replace with actual LinkedIn profile URL
             window.open('https://www.linkedin.com/in/yourprofile', '_blank');
