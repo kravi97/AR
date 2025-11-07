@@ -142,28 +142,28 @@
 </head>
 <body>
     <div class="launch-container">
-        <div class="icon">📱</div>
-        <h1>Welcome to AR Business Card</h1>
-        <p>Choose how you want to experience this digital business card</p>
+        <div class="icon">�</div>
+        <h1>AR Business Card Experience</h1>
+        <p>Welcome! Choose how you'd like to view this business card</p>
         
         <div class="button-group">
             <a href="ar.html" class="btn btn-ar" id="arBtn">
-                <span>🔮</span>
-                <span>Launch AR Experience</span>
+                <span>�</span>
+                <span>Launch AR Camera</span>
             </a>
-            <a href="index.html" class="btn btn-card">
+            <a href="index.html?view=card" class="btn btn-card">
                 <span>💼</span>
                 <span>View Digital Card</span>
             </a>
         </div>
         
         <div class="device-info" id="deviceInfo">
-            <strong>AR Experience:</strong> Point your camera at the business card to see augmented reality content with video and floating badges.
+            <strong>🎯 AR Experience:</strong> Point your camera at the business card to see augmented reality content with video and floating service badges!
         </div>
         
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p style="margin-top: 10px; color: #667eea;">Launching AR...</p>
+            <p style="margin-top: 10px; color: #667eea;">Requesting camera access...</p>
         </div>
     </div>
     
@@ -175,15 +175,22 @@
         if (isMobile && hasCamera) {
             // On mobile with camera, highlight AR option
             document.getElementById('deviceInfo').innerHTML = `
-                <strong>✅ AR Ready!</strong> Your device supports AR experience. Click "Launch AR Experience" to get started.
+                <strong>✅ AR Ready!</strong> Your device supports AR. Tap "Launch AR Camera" to scan the business card and see it come to life!
             `;
             document.getElementById('deviceInfo').style.background = '#d4edda';
             document.getElementById('deviceInfo').style.color = '#155724';
         } else if (!isMobile) {
             // On desktop, suggest viewing the card
             document.getElementById('deviceInfo').innerHTML = `
-                <strong>ℹ️ Desktop Detected:</strong> AR experience works best on mobile devices. You can view the digital card or scan the QR code with your phone.
+                <strong>ℹ️ Desktop Detected:</strong> AR works best on mobile. View the digital card here, or scan this QR code with your phone for the AR experience.
             `;
+        } else if (!hasCamera) {
+            // No camera detected
+            document.getElementById('deviceInfo').innerHTML = `
+                <strong>⚠️ No Camera Detected:</strong> AR experience requires camera access. You can still view the digital business card.
+            `;
+            document.getElementById('deviceInfo').style.background = '#fff3cd';
+            document.getElementById('deviceInfo').style.color = '#856404';
         }
         
         // Add click handler to show loading

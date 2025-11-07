@@ -341,6 +341,16 @@
     </div>
 
     <script>
+        // Smart QR Code Router - Auto-detect mobile and show AR options
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const hasCamera = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+        
+        // If mobile device, show AR launch prompt
+        if (isMobile && window.location.search.indexOf('view=card') === -1) {
+            // Redirect to launch screen on mobile
+            window.location.href = 'launch.html';
+        }
+        
         // Wait for DOM to load
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🎬 Background video page loaded');
@@ -382,33 +392,6 @@
         function openContact() {
             // Replace with actual contact information
             window.open('mailto:contact@yourcompany.com?subject=Business Inquiry', '_blank');
-        }
-        
-        // Auto-redirect to AR on mobile if accessed via QR scan
-        const urlParams = new URLSearchParams(window.location.search);
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        
-        // Check if coming from QR scan (you can add ?ar=1 to QR code URL)
-        if (urlParams.get('ar') === '1' && isMobile) {
-            // Auto-redirect to AR experience after brief delay
-            setTimeout(() => {
-                window.location.href = 'ar.html';
-            }, 1500);
-            
-            // Show a brief message
-            document.body.innerHTML = `
-                <div style="display: flex; align-items: center; justify-content: center; height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 400px;">
-                        <div style="font-size: 60px; margin-bottom: 20px;">🔮</div>
-                        <h2 style="color: #2c3e50; margin-bottom: 10px;">Launching AR Experience...</h2>
-                        <p style="color: #7f8c8d;">Get ready to scan your business card!</p>
-                        <div style="margin-top: 20px; border: 4px solid #667eea; border-top-color: transparent; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-left: auto; margin-right: auto;"></div>
-                    </div>
-                </div>
-                <style>
-                    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-                </style>
-            `;
         }
         
         // Click handler to ensure video plays on user interaction
