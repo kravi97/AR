@@ -401,6 +401,8 @@
                 let userInteracted = false;
                 
                 console.log('🎬 Initializing video component with:', videoId);
+                console.log('🎬 Video element found:', videoEl);
+                console.log('🎬 Video src:', videoEl ? videoEl.src : 'NULL');
                 
                 // Ensure video starts muted
                 if (videoEl) {
@@ -419,6 +421,8 @@
                 
                 this.el.sceneEl.addEventListener('targetFound', () => {
                     console.log('✅ Business card detected! First scan:', isFirstScan, 'User interacted:', userInteracted);
+                    console.log('🎥 About to play video:', videoId, 'Element:', videoEl);
+                    console.log('🎥 Video src:', videoEl ? videoEl.src : 'NULL');
                     if (videoEl) {
                         // Reset video
                         videoEl.pause();
