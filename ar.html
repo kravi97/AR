@@ -171,6 +171,7 @@
     <div class="ar-instructions" id="instructions">
         <h3>📱 Point Camera at Business Card</h3>
         <p>Scanning for target image...</p>
+        <p id="person-indicator" style="font-weight: bold; color: #ffd700; margin-top: 10px;"></p>
     </div>
     
     <!-- Back Button -->
@@ -374,6 +375,12 @@
                 videoDisplay.setAttribute('src', '#' + videoId);
                 videoDisplay.setAttribute('play-on-track', 'videoId: ' + videoId);
                 console.log('✅ Video element configured with:', videoId);
+            }
+            
+            // Update visual indicator
+            const indicator = document.getElementById('person-indicator');
+            if (indicator) {
+                indicator.textContent = `Loading: ${person === 'kaushik' ? 'Kaushik' : 'Samir'}'s AR Card`;
             }
         });
         
