@@ -351,6 +351,7 @@
                 const video = this.el.getAttribute('src');
                 const videoEl = document.querySelector(video);
                 let isFirstScan = true;
+                let userInteracted = false;
                 
                 // Ensure video starts muted
                 if (videoEl) {
@@ -358,33 +359,57 @@
                     videoEl.volume = 0;
                 }
                 
+                // Enable audio on any user interaction
+                const enableAudio = () => {
+                    userInteracted = true;
+                    console.log('✅ User interaction detected - audio enabled');
+                };
+                
+                document.addEventListener('touchstart', enableAudio, { once: true });
+                document.addEventListener('click', enableAudio, { once: true });
+                
                 this.el.sceneEl.addEventListener('targetFound', () => {
-                    console.log('✅ Business card detected in component! First scan:', isFirstScan);
+                    console.log('✅ Business card detected! First scan:', isFirstScan, 'User interacted:', userInteracted);
                     if (videoEl) {
                         // Reset video
                         videoEl.pause();
                         videoEl.currentTime = 0;
                         
                         if (isFirstScan) {
-                            // First scan - ensure muted
+                            // First scan - play muted
                             videoEl.muted = true;
                             videoEl.volume = 0;
                             console.log('🔇 First scan - playing MUTED');
+                            
+                            videoEl.play()
+                                .then(() => console.log('✅ Video playing muted'))
+                                .catch(e => console.log('Video play error:', e));
                         } else {
-                            // Subsequent scans - enable sound
+                            // Second scan onwards - try with sound
                             videoEl.muted = false;
                             videoEl.volume = 1.0;
-                            console.log('🔊 Subsequent scan - playing WITH SOUND');
-                        }
-                        
-                        // Play video
-                        setTimeout(() => {
+                            console.log('🔊 Second+ scan - attempting WITH SOUND');
+                            
                             videoEl.play()
-                                .then(() => console.log('✅ Video playing, muted:', videoEl.muted, 'volume:', videoEl.volume))
+                                .then(() => {
+                                    console.log('✅ Video playing with sound!');
+                                })
                                 .catch(e => {
-                                    console.log('Video play error:', e);
+                                    console.log('⚠️ Autoplay with sound blocked, playing muted:', e);
+                                    // If blocked, play muted and wait for user interaction
+                                    videoEl.muted = true;
+                                    videoEl.play().then(() => {
+                                        // Wait for user interaction to unmute
+                                        const unmute = () => {
+                                            videoEl.muted = false;
+                                            videoEl.volume = 1.0;
+                                            console.log('🔊 Unmuted after user interaction');
+                                        };
+                                        document.addEventListener('touchstart', unmute, { once: true });
+                                        document.addEventListener('click', unmute, { once: true });
+                                    });
                                 });
-                        }, 100);
+                        }
                     }
                 });
                 
@@ -393,7 +418,7 @@
                     if (videoEl && !videoEl.paused) {
                         videoEl.pause();
                         videoEl.currentTime = 0;
-                        isFirstScan = false; // Next scan will have sound
+                        isFirstScan = false; // Next scan will attempt sound
                         console.log('Setting isFirstScan to false');
                     }
                 });
@@ -491,43 +516,6 @@
                 badges.forEach(badge => {
                     badge.setAttribute('visible', 'false');
                 });
-            });
-            
-            // Add click/tap handler to unmute video
-            let isUnmuted = false;
-            document.addEventListener('click', function() {
-                if (video && !isUnmuted) {
-                    video.muted = false;
-                    video.volume = 1.0;
-                    isUnmuted = true;
-                    console.log('🔊 Video unmuted');
-                    if (instructions.classList.contains('found')) {
-                        instructions.querySelector('p').textContent = '🔊 Sound enabled!';
-                        setTimeout(() => {
-                            if (instructions.classList.contains('found')) {
-                                instructions.querySelector('p').textContent = 'AR experience is active';
-                            }
-                        }, 2000);
-                    }
-                }
-            });
-            
-            // Also try on touchstart for mobile
-            document.addEventListener('touchstart', function() {
-                if (video && !isUnmuted) {
-                    video.muted = false;
-                    video.volume = 1.0;
-                    isUnmuted = true;
-                    console.log('🔊 Video unmuted via touch');
-                    if (instructions.classList.contains('found')) {
-                        instructions.querySelector('p').textContent = '🔊 Sound enabled!';
-                        setTimeout(() => {
-                            if (instructions.classList.contains('found')) {
-                                instructions.querySelector('p').textContent = 'AR experience is active';
-                            }
-                        }, 2000);
-                    }
-                }
             });
         });
     </script>
