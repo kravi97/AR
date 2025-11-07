@@ -352,10 +352,21 @@
                 const videoEl = document.querySelector(video);
                 
                 this.el.sceneEl.addEventListener('targetFound', () => {
-                    console.log('✅ Business card detected!');
-                    if (videoEl && videoEl.paused) {
-                        videoEl.muted = true; // Ensure muted for autoplay
-                        videoEl.play().catch(e => console.log('Video play error:', e));
+                    console.log('✅ Business card detected in component!');
+                    if (videoEl) {
+                        // Force play immediately
+                        videoEl.currentTime = 0; // Reset to start
+                        videoEl.muted = false;
+                        videoEl.volume = 1.0;
+                        videoEl.play()
+                            .then(() => console.log('✅ Video started playing'))
+                            .catch(e => {
+                                console.log('Video play with sound failed, trying muted:', e);
+                                videoEl.muted = true;
+                                videoEl.play()
+                                    .then(() => console.log('✅ Video playing muted'))
+                                    .catch(err => console.log('Video play error:', err));
+                            });
                     }
                 });
                 
@@ -363,6 +374,7 @@
                     console.log('❌ Business card lost');
                     if (videoEl && !videoEl.paused) {
                         videoEl.pause();
+                        videoEl.currentTime = 0; // Reset for next scan
                     }
                 });
             }
@@ -421,22 +433,8 @@
                 instructions.querySelector('h3').textContent = '✅ Business Card Detected!';
                 instructions.querySelector('p').textContent = 'Tap screen to enable sound';
                 
-                // Start video
-                if (video) {
-                    video.muted = false; // Unmute the video
-                    video.volume = 1.0; // Set volume to maximum
-                    video.play().then(() => {
-                        console.log('✅ Video playing with sound');
-                    }).catch(e => {
-                        console.log('Video play error:', e);
-                        // If autoplay with sound fails, try muted first
-                        video.muted = true;
-                        video.play().then(() => {
-                            console.log('⚠️ Video playing muted - tap screen to unmute');
-                            instructions.querySelector('p').textContent = 'Tap screen to enable sound';
-                        });
-                    });
-                }
+                // Video is already handled by play-on-track component
+                // Just update UI and show badges
                 
                 // Show badges with sequential animation
                 badges.forEach((badge, index) => {
@@ -460,10 +458,7 @@
                 instructions.querySelector('h3').textContent = '📱 Point Camera at Business Card';
                 instructions.querySelector('p').textContent = 'Scanning for target image...';
                 
-                // Pause video
-                if (video) {
-                    video.pause();
-                }
+                // Video pause is handled by play-on-track component
                 
                 // Hide badges
                 badges.forEach(badge => {
