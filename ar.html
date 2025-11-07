@@ -197,7 +197,7 @@
         onload="handleSceneLoad()">
         
         <a-assets>
-            <video id="ar-video" src="./assets/SameerR.webm" preload="auto" loop="true" muted crossorigin="anonymous" playsinline webkit-playsinline autoplay="false"></video>
+            <video id="ar-video" src="./assets/SameerR.webm" preload="auto" loop="true" crossorigin="anonymous" playsinline webkit-playsinline autoplay="false"></video>
         </a-assets>
         
         <!-- Camera -->
@@ -419,12 +419,23 @@
                 console.log('✅ Target Found - Showing AR Content');
                 instructions.classList.add('found');
                 instructions.querySelector('h3').textContent = '✅ Business Card Detected!';
-                instructions.querySelector('p').textContent = 'AR experience is active';
+                instructions.querySelector('p').textContent = 'Tap screen to enable sound';
                 
                 // Start video
                 if (video) {
-                    video.muted = true;
-                    video.play().catch(e => console.log('Video play error:', e));
+                    video.muted = false; // Unmute the video
+                    video.volume = 1.0; // Set volume to maximum
+                    video.play().then(() => {
+                        console.log('✅ Video playing with sound');
+                    }).catch(e => {
+                        console.log('Video play error:', e);
+                        // If autoplay with sound fails, try muted first
+                        video.muted = true;
+                        video.play().then(() => {
+                            console.log('⚠️ Video playing muted - tap screen to unmute');
+                            instructions.querySelector('p').textContent = 'Tap screen to enable sound';
+                        });
+                    });
                 }
                 
                 // Show badges with sequential animation
@@ -458,6 +469,43 @@
                 badges.forEach(badge => {
                     badge.setAttribute('visible', 'false');
                 });
+            });
+            
+            // Add click/tap handler to unmute video
+            let isUnmuted = false;
+            document.addEventListener('click', function() {
+                if (video && !isUnmuted) {
+                    video.muted = false;
+                    video.volume = 1.0;
+                    isUnmuted = true;
+                    console.log('🔊 Video unmuted');
+                    if (instructions.classList.contains('found')) {
+                        instructions.querySelector('p').textContent = '🔊 Sound enabled!';
+                        setTimeout(() => {
+                            if (instructions.classList.contains('found')) {
+                                instructions.querySelector('p').textContent = 'AR experience is active';
+                            }
+                        }, 2000);
+                    }
+                }
+            });
+            
+            // Also try on touchstart for mobile
+            document.addEventListener('touchstart', function() {
+                if (video && !isUnmuted) {
+                    video.muted = false;
+                    video.volume = 1.0;
+                    isUnmuted = true;
+                    console.log('🔊 Video unmuted via touch');
+                    if (instructions.classList.contains('found')) {
+                        instructions.querySelector('p').textContent = '🔊 Sound enabled!';
+                        setTimeout(() => {
+                            if (instructions.classList.contains('found')) {
+                                instructions.querySelector('p').textContent = 'AR experience is active';
+                            }
+                        }, 2000);
+                    }
+                }
             });
         });
     </script>
